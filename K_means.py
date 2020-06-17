@@ -1,4 +1,3 @@
-import math
 import pandas as pd
 import numpy as np
 
@@ -8,7 +7,7 @@ class K_means:
     def __init__(self, dataframe, num_cluster): # requires dataset in the format of pandas dataframe and cluster's number as arguments
         self.df = dataframe
         self.final_df = dataframe.copy(deep=False) # makes a copy of the original dataset
-        self.final_df['cluster'] = np.zeros(self.final_df.shape[0], np.int32)
+        self.final_df['cluster'] = np.zeros(self.final_df.shape[0], np.int32)   # adds a column in which store labels
         self.k = num_cluster
         self.centroids = np.array(self.df.iloc[:self.k]).astype(np.float32) # sets initial centroids as first k elements of the dataset
 
