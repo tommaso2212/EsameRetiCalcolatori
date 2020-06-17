@@ -17,7 +17,6 @@ class K_meansCUDA:
         self.final_df['cluster'] = np.zeros(self.final_df.shape[0], np.int32) # adds a column in which store labels
         self.k = num_cluster
         self.centroids = np.array(self.df.iloc[:self.k]).astype(np.float32) # sets initial centroids as first k elements of the dataset
-        self.init_kernels()
 
     def init_kernels(self):
         mod = SourceModule("""
@@ -70,6 +69,8 @@ class K_meansCUDA:
 
     # This method trains the network using a loop for alternate the assignment phase and the updating phase until it reaches the optimum.
     def train(self):
+        self.init_kernels()
+
         while True:
             self.assignment()
             flag = self.update_centroids()
