@@ -23,34 +23,28 @@ class K_meansCUDA:
         mod = SourceModule("""
             __global__ void assignment(int *labels, float *features, float *centroids, int *k, int *features_height, int *features_width){
                 extern __shared__ float distances[];   //creates a temporal array
+
+                int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
                 for(int i=0; i<*k; i++){    //for each cluster
                     float distance_eucl = 0;
                     for(int j=0; j<*features_width; j++){   //for each feature
-                        distance_eucl += pow(features[threadIdx.x + *features_height * j] - centroids[i + *k * j], 2);    //sums of the squares of the components
+                        distance_eucl += pow(features[idx + *features_height * j] - centroids[i + *k * j], 2);    //sums of the squares of the components
                     }
                     distance_eucl = sqrt(distance_eucl);    //square root of the sum
                     if(i==0){
-                        distances[threadIdx.x] = distance_eucl; //stores distance value 
+                        distances[idx] = distance_eucl; //stores distance value 
                     }
-                    if(distances[threadIdx.x] > distance_eucl){ //if the distance stored is less than the calculated distance
-                        distances[threadIdx.x] = distance_eucl; //updates distance stored
-                        labels[threadIdx.x] = i;    //updates label
+                    if(distances[idx] > distance_eucl){ //if the distance stored is less than the calculated distance
+                        distances[idx] = distance_eucl; //updates distance stored
+                        labels[idx] = i;    //updates label
                     }
                 }
                 __syncthreads();
             }
-
-            __global__ void update(float *sorted_features, float *new_centroids, int *index, int *height){
-                float new_value = 0;
-                for(int i = index[threadIdx.x]; i<index[threadIdx.x] +height[threadIdx.x]; i++){
-                    new_value += sorted_features[i];    //sum of all 
-                }
-                new_centroids[threadIdx.x] = new_value/height[threadIdx.x];
-            }
         """)
 
         self.kernel_assign = mod.get_function("assignment") # references cuda kernel for the assignment phase
-        self.kernel_update = mod.get_function("update") # references cuda kernel for the centroids update
 
     def assignment(self):
         
