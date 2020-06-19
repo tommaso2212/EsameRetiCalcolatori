@@ -124,7 +124,7 @@ Example1 uses a small dataset (just twenty 2D-points).
 As we can see, the execution with the GPU requires more time that the one that use python's NumPy.
 
 #### Example 2
-We can execute the first example with
+We can execute the second example with
 ```
 
 python3 Example2.py
